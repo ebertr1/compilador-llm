@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<structure>
+  <type>fa</type>
+  <automaton>
+    <!-- NFA con transiciones ε: Identificadores, números, flotantes, strings -->
+    <state id="0" name="q0"><x>50</x><y>200</y><initial/></state>
+
+    <!-- Sub-autómata para identificadores (letra + letra|dígito)* -->
+    <state id="1" name="q_id_1"><x>200</x><y>50</y></state>
+    <state id="2" name="q_id_2"><x>350</x><y>50</y><final/></state>
+
+    <!-- Sub-autómata para números enteros: dígito+ -->
+    <state id="3" name="q_num_1"><x>200</x><y>150</y></state>
+    <state id="4" name="q_num_2"><x>350</x><y>150</y><final/></state>
+
+    <!-- Sub-autómata para flotantes: dígito+ . dígito+ -->
+    <state id="5" name="q_float_1"><x>500</x><y>150</y></state>
+    <state id="6" name="q_float_2"><x>650</x><y>150</y><final/></state>
+
+    <!-- Sub-autómata para strings: " cualquier* " -->
+    <state id="7" name="q_str_1"><x>200</x><y>300</y></state>
+    <state id="8" name="q_str_2"><x>350</x><y>300</y></state>
+    <state id="9" name="q_str_3"><x>500</x><y>300</y><final/></state>
+
+    <!-- Sub-autómata para operadores: un carácter -->
+    <state id="10" name="q_op_1"><x>200</x><y>400</y></state>
+
+    <!-- ε-transiciones desde q0 a cada sub-autómata -->
+    <transition><from>0</from><to>1</to><read/></transition>
+    <transition><from>0</from><to>3</to><read/></transition>
+    <transition><from>0</from><to>7</to><read/></transition>
+    <transition><from>0</from><to>10</to><read/></transition>
+
+    <!-- Identificador: [a-zA-Z_] → [a-zA-Z0-9_]* -->
+    <transition><from>1</from><to>2</to><read>a-z</read></transition>
+    <transition><from>1</from><to>2</to><read>A-Z</read></transition>
+    <transition><from>1</from><to>2</to><read>_</read></transition>
+    <transition><from>2</from><to>2</to><read>a-z</read></transition>
+    <transition><from>2</from><to>2</to><read>A-Z</read></transition>
+    <transition><from>2</from><to>2</to><read>0-9</read></transition>
+    <transition><from>2</from><to>2</to><read>_</read></transition>
+
+    <!-- Número entero: [0-9] → [0-9]* -->
+    <transition><from>3</from><to>4</to><read>0-9</read></transition>
+    <transition><from>4</from><to>4</to><read>0-9</read></transition>
+
+    <!-- Flotante: se conecta desde num_2 con . -->
+    <transition><from>4</from><to>5</to><read>.</read></transition>
+    <!-- Flotante: también puede empezar directo -->
+    <transition><from>0</from><to>5</to><read/></transition>
+    <transition><from>5</from><to>6</to><read>0-9</read></transition>
+    <transition><from>6</from><to>6</to><read>0-9</read></transition>
+
+    <!-- String: " → cualquier → " -->
+    <transition><from>7</from><to>8</to><read>"</read></transition>
+    <transition><from>8</from><to>8</to><read>a-z</read></transition>
+    <transition><from>8</from><to>8</to><read>A-Z</read></transition>
+    <transition><from>8</from><to>8</to><read>0-9</read></transition>
+    <transition><from>8</from><to>8</to><read> </read></transition>
+    <transition><from>8</from><to>8</to><read>.</read></transition>
+    <transition><from>8</from><to>9</to><read>"</read></transition>
+
+    <!-- Operadores: un solo carácter cada uno -->
+    <transition><from>10</from><to>10</to><read>=</read></transition>
+    <transition><from>10</from><to>10</to><read>;</read></transition>
+    <transition><from>10</from><to>10</to><read>+</read></transition>
+    <transition><from>10</from><to>10</to><read>-</read></transition>
+    <transition><from>10</from><to>10</to><read>*</read></transition>
+    <transition><from>10</from><to>10</to><read>/</read></transition>
+    <transition><from>10</from><to>10</to><read>%</read></transition>
+    <transition><from>10</from><to>10</to><read>(</read></transition>
+    <transition><from>10</from><to>10</to><read>)</read></transition>
+  </automaton>
+</structure>

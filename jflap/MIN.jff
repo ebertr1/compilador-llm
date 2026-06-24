@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<structure>
+  <type>fa</type>
+  <automaton>
+    <!-- AFD minimizado -->
+    <state id="0" name="q0"><x>50</x><y>200</y><initial/></state>
+    <state id="1" name="q_id"><x>300</x><y>50</y><final/></state>
+    <state id="2" name="q_num"><x>300</x><y>150</y><final/></state>
+    <state id="3" name="q_float"><x>500</x><y>150</y><final/></state>
+    <state id="4" name="q_str"><x>300</x><y>300</y></state>
+    <state id="5" name="q_str_in"><x>500</x><y>300</y></state>
+    <state id="6" name="q_str_end"><x>650</x><y>300</y><final/></state>
+    <state id="7" name="q_op"><x>300</x><y>400</y><final/></state>
+
+    <!-- Transiciones desde q0 -->
+    <transition><from>0</from><to>1</to><read>a-z</read></transition>
+    <transition><from>0</from><to>1</to><read>A-Z</read></transition>
+    <transition><from>0</from><to>1</to><read>_</read></transition>
+    <transition><from>0</from><to>2</to><read>0-9</read></transition>
+    <transition><from>0</from><to>4</to><read>"</read></transition>
+    <transition><from>0</from><to>7</to><read>=</read></transition>
+    <transition><from>0</from><to>7</to><read>;</read></transition>
+    <transition><from>0</from><to>7</to><read>+</read></transition>
+    <transition><from>0</from><to>7</to><read>-</read></transition>
+    <transition><from>0</from><to>7</to><read>*</read></transition>
+    <transition><from>0</from><to>7</to><read>/</read></transition>
+    <transition><from>0</from><to>7</to><read>%</read></transition>
+    <transition><from>0</from><to>7</to><read>(</read></transition>
+    <transition><from>0</from><to>7</to><read>)</read></transition>
+
+    <!-- ID: letras y dígitos -->
+    <transition><from>1</from><to>1</to><read>a-z</read></transition>
+    <transition><from>1</from><to>1</to><read>A-Z</read></transition>
+    <transition><from>1</from><to>1</to><read>0-9</read></transition>
+    <transition><from>1</from><to>1</to><read>_</read></transition>
+
+    <!-- Número entero: más dígitos o punto flotante -->
+    <transition><from>2</from><to>2</to><read>0-9</read></transition>
+    <transition><from>2</from><to>3</to><read>.</read></transition>
+
+    <!-- Número flotante: más dígitos -->
+    <transition><from>3</from><to>3</to><read>0-9</read></transition>
+
+    <!-- String: contenido hasta comilla cierre -->
+    <transition><from>4</from><to>5</to><read>a-z</read></transition>
+    <transition><from>4</from><to>5</to><read>A-Z</read></transition>
+    <transition><from>4</from><to>5</to><read>0-9</read></transition>
+    <transition><from>4</from><to>5</to><read> </read></transition>
+    <transition><from>5</from><to>5</to><read>a-z</read></transition>
+    <transition><from>5</from><to>5</to><read>A-Z</read></transition>
+    <transition><from>5</from><to>5</to><read>0-9</read></transition>
+    <transition><from>5</from><to>5</to><read> </read></transition>
+    <transition><from>5</from><to>6</to><read>"</read></transition>
+  </automaton>
+</structure>

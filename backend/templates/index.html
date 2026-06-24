@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compilador ES — IDE Profesional</title>
+
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+
+<style>
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1e293b;
+  --bg-hover: #1e3a5f;
+  --bg-active: #1e3a8a;
+  --border: #1e293b;
+  --border-light: #334155;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-glow: rgba(59, 130, 246, 0.25);
+  --error: #ef4444;
+  --error-bg: rgba(239, 68, 68, 0.12);
+  --success: #22c55e;
+  --success-bg: rgba(34, 197, 94, 0.12);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.12);
+  --font-mono: 'JetBrains Mono', 'Consolas', 'Cascadia Code', monospace;
+  --font-ui: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --radius: 8px;
+  --radius-sm: 4px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  --transition: 200ms ease;
+  --header-h: 48px;
+  --explorer-w: 240px;
+  --tabs-h: 36px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+.header {
+  height: var(--header-h);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+.header-logo {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, var(--accent), #6366f1);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.header-title {
+  font-weight: 600; font-size: 15px;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.header-title span { color: var(--accent); }
+.header-subtitle {
+  font-size: 11px; color: var(--text-muted);
+  margin-left: 4px;
+}
+.header-spacer { flex: 1; }
+.header-status {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text-secondary);
+  background: var(--bg-tertiary); padding: 4px 10px; border-radius: 20px;
+}
+.header-status .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 16px; border: none; border-radius: var(--radius-sm);
+  font-family: var(--font-ui); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all var(--transition);
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--accent); color: #fff;
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+.btn-primary:hover { background: var(--accent-hover); box-shadow: 0 0 30px var(--accent-glow); transform: translateY(-1px); }
+.btn-secondary {
+  background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-light);
+}
+.btn-secondary:hover { background: var(--bg-hover); border-color: var(--accent); }
+.btn-icon {
+  width: 32px; height: 32px; padding: 0; justify-content: center;
+  border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); border: none;
+}
+.btn-icon:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+
+.body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.explorer {
+  width: var(--explorer-w);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: width var(--transition);
+}
+.explorer.collapsed { width: 0; border-right: none; }
+.explorer-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border-bottom: 1px solid var(--border);
+  font-size: 11px; font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+.explorer-actions { display: flex; gap: 4px; }
+.explorer-list {
+  flex: 1; overflow-y: auto; padding: 4px 0;
+}
+.explorer-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px; cursor: pointer;
+  color: var(--text-secondary); font-size: 13px;
+  transition: all var(--transition);
+  border-left: 2px solid transparent;
+}
+.explorer-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.explorer-item.active {
+  background: var(--bg-active); color: var(--text-primary);
+  border-left-color: var(--accent);
+}
+.explorer-item .icon { font-size: 14px; flex-shrink: 0; }
+.explorer-section {
+  padding: 8px 12px 4px;
+  font-size: 10px; font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+.editor-panel {
+  flex: 1;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+.editor-tabs {
+  display: flex; align-items: center;
+  height: var(--tabs-h); background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto; flex-shrink: 0;
+}
+.editor-tab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 16px; height: 100%; cursor: pointer;
+  font-size: 12px; color: var(--text-muted);
+  border-right: 1px solid var(--border);
+  white-space: nowrap; transition: all var(--transition);
+  position: relative;
+}
+.editor-tab.active {
+  color: var(--text-primary); background: var(--bg-primary);
+}
+.editor-tab.active::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: var(--accent);
+}
+.editor-tab:hover:not(.active) { color: var(--text-secondary); background: var(--bg-tertiary); }
+.editor-container { flex: 1; overflow: hidden; position: relative; }
+
+.results {
+  width: 420px;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: width var(--transition);
+}
+.results.collapsed { width: 0; border-left: none; }
+
+.results-tabs {
+  display: flex; align-items: center;
+  height: var(--tabs-h); background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto; flex-shrink: 0;
+}
+.results-tab {
+  padding: 0 10px; height: 100%; cursor: pointer;
+  font-size: 11px; font-weight: 500; color: var(--text-muted);
+  white-space: nowrap; transition: all var(--transition);
+  display: flex; align-items: center; gap: 4px;
+  border-bottom: 2px solid transparent;
+}
+.results-tab:hover { color: var(--text-secondary); background: rgba(255,255,255,0.03); }
+.results-tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(59,130,246,0.06); }
+.results-tab .badge {
+  font-size: 10px; padding: 0 5px; border-radius: 8px;
+  background: var(--bg-tertiary); color: var(--text-muted); font-weight: 600;
+  min-width: 16px; text-align: center;
+}
+.results-tab .badge.error { background: var(--error-bg); color: var(--error); }
+.results-tab .badge.success { background: var(--success-bg); color: var(--success); }
+.results-tab .badge.info { background: var(--accent-glow); color: var(--accent); }
+
+.results-content {
+  flex: 1; overflow: hidden; position: relative;
+}
+.results-pane {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  overflow: auto; padding: 12px;
+  display: none;
+}
+.results-pane.active { display: block; }
+
+.results-footer {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px; border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--text-muted); flex-shrink: 0;
+}
+
+.pane-title {
+  font-size: 11px; font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.token-grid {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.token-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 12px; font-family: var(--font-mono);
+  background: var(--bg-tertiary); border: 1px solid var(--border-light);
+  transition: all var(--transition);
+}
+.token-chip:hover { border-color: var(--accent); transform: translateY(-1px); }
+.token-chip .tok-type { font-weight: 600; color: var(--accent); font-size: 10px; }
+.token-chip .tok-val { color: var(--text-secondary); }
+.token-chip .tok-line { color: var(--text-muted); font-size: 10px; }
+
+.ast-tree ul { list-style: none; padding-left: 20px; position: relative; }
+.ast-tree > ul { padding-left: 0; }
+.ast-tree li { position: relative; padding: 3px 0; }
+.ast-tree li::before {
+  content: ''; position: absolute; left: -14px; top: 0; bottom: 50%;
+  width: 10px; border-left: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+}
+.ast-tree > li::before { display: none; }
+.ast-tree .node-box {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border-radius: var(--radius-sm);
+  font-size: 12px; font-family: var(--font-mono);
+  cursor: pointer; transition: all var(--transition);
+  border: 1px solid var(--border-light); background: var(--bg-tertiary);
+}
+.ast-tree .node-box:hover { border-color: var(--accent); background: var(--bg-hover); }
+.ast-tree .node-type { font-weight: 600; color: var(--accent); }
+.ast-tree .node-attr { color: var(--text-secondary); font-size: 11px; }
+.ast-tree .node-toggle { color: var(--text-muted); font-size: 10px; cursor: pointer; width: 16px; text-align: center; }
+
+.sym-grid {
+  display: grid; grid-template-columns: auto auto auto;
+  gap: 4px; font-size: 13px; font-family: var(--font-mono);
+}
+.sym-grid .sym-hdr {
+  font-weight: 600; color: var(--text-muted); font-size: 11px;
+  text-transform: uppercase; padding: 4px 8px;
+  border-bottom: 1px solid var(--border-light);
+}
+.sym-grid .sym-item {
+  padding: 4px 8px; color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  display: flex; align-items: center; gap: 6px;
+}
+.sym-grid .sym-name { color: var(--text-primary); }
+.sym-grid .sym-type {
+  font-size: 11px; padding: 1px 6px; border-radius: 10px;
+  background: var(--bg-tertiary);
+}
+.sym-type.type-entero { color: #60a5fa; background: rgba(96,165,250,0.12); }
+.sym-type.type-flotante { color: #34d399; background: rgba(52,211,153,0.12); }
+.sym-type.type-cadena { color: #fb923c; background: rgba(251,146,60,0.12); }
+
+.error-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px 10px; margin-bottom: 4px;
+  border-radius: var(--radius-sm);
+  background: var(--error-bg); border-left: 3px solid var(--error);
+  font-size: 13px;
+}
+.error-item .err-line { font-weight: 700; color: var(--error); font-family: var(--font-mono); flex-shrink: 0; min-width: 36px; }
+.error-item .err-msg { color: var(--text-primary); }
+.error-item .err-type { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+.llm-box {
+  background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(99,102,241,0.08));
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: var(--radius); padding: 14px;
+  font-size: 13px; line-height: 1.6;
+}
+.llm-box.correct { border-color: rgba(34,197,94,0.3); background: linear-gradient(135deg, rgba(34,197,94,0.06), rgba(59,130,246,0.06)); }
+.llm-box .llm-header { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 12px; margin-bottom: 10px; color: var(--accent); }
+.llm-box .llm-header.success { color: var(--success); }
+.llm-box .llm-content { color: var(--text-secondary); white-space: pre-wrap; }
+
+.loading-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15,23,42,0.7); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.loading-overlay.active { display: flex; }
+.loading-spinner { text-align: center; }
+.loading-spinner .ring {
+  width: 48px; height: 48px; border: 3px solid var(--bg-tertiary);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-spinner p { color: var(--text-secondary); font-size: 14px; }
+
+.toast-container {
+  position: fixed; bottom: 20px; right: 20px;
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 2000;
+}
+.toast {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; border-radius: var(--radius);
+  background: var(--bg-tertiary); border: 1px solid var(--border-light);
+  box-shadow: var(--shadow);
+  font-size: 13px; color: var(--text-primary);
+  animation: slideIn 0.3s ease;
+  max-width: 360px;
+}
+.toast.success { border-left: 3px solid var(--success); }
+.toast.error { border-left: 3px solid var(--error); }
+.toast.info { border-left: 3px solid var(--accent); }
+.toast .toast-icon { font-size: 18px; }
+.toast .toast-close { margin-left: auto; cursor: pointer; background: none; border: none; color: var(--text-muted); font-size: 16px; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+.empty-state .icon { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
+.empty-state p { font-size: 13px; }
+
+@media (max-width: 1024px) {
+  .explorer { width: 200px; }
+  .results { width: 320px; }
+}
+@media (max-width: 768px) {
+  .explorer, .results { width: 0; border: none; }
+  .body { flex-direction: column; }
+  .editor-panel { min-height: 300px; }
+  .results { border-left: none; border-top: 1px solid var(--border); }
+  .header-subtitle { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <div class="header-logo">C</div>
+    <div class="header-title">Compilador <span>ES</span></div>
+    <div class="header-subtitle">Tipado Estatico · Gemma 3</div>
+    <div class="header-spacer"></div>
+    <div class="header-status">
+      <span class="dot"></span>
+      <span>Ollama</span>
+    </div>
+    <button class="btn btn-primary" onclick="compile()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Compilar
+    </button>
+    <button class="btn btn-secondary" onclick="clearAll()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Limpiar
+    </button>
+    <button class="btn btn-icon" onclick="toggleExplorer()" title="Explorador">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="3" x2="15" y2="3"/><line x1="3" y1="9" x2="15" y2="9"/><line x1="3" y1="15" x2="15" y2="15"/><line x1="3" y1="21" x2="15" y2="21"/></svg>
+    </button>
+    <button class="btn btn-icon" onclick="toggleResults()" title="Resultados">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    </button>
+  </header>
+
+  <div class="body">
+    <nav class="explorer" id="explorer">
+      <div class="explorer-header">
+        <span>Explorador</span>
+        <div class="explorer-actions">
+          <button class="btn-icon" onclick="newFile()" title="Nuevo archivo">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="explorer-list" id="explorer-list">
+        <div class="explorer-section">Proyecto</div>
+        <div class="explorer-item active" data-file="main.es" onclick="selectFile(this)">
+          <span class="icon">📄</span> main.es
+        </div>
+        <div class="explorer-section">Ejemplos</div>
+        <div class="explorer-item" data-file="correcto" onclick="loadExample('correct_sp.txt', this)">
+          <span class="icon">✅</span> Correcto
+        </div>
+        <div class="explorer-item" data-file="errores" onclick="loadExample('errors_sp.txt', this)">
+          <span class="icon">❌</span> Con errores
+        </div>
+      </div>
+    </nav>
+
+    <main class="editor-panel">
+      <div class="editor-tabs">
+        <div class="editor-tab active">
+          <span>📄</span> main.es
+        </div>
+      </div>
+      <div class="editor-container" id="editor-container"></div>
+    </main>
+
+    <aside class="results" id="results">
+      <div class="results-tabs">
+        <div class="results-tab active" onclick="switchResultTab(this, 'tokens')">
+          Tokens <span class="badge" id="badge-tokens">0</span>
+        </div>
+        <div class="results-tab" onclick="switchResultTab(this, 'ast')">
+          AST <span class="badge" id="badge-ast">0</span>
+        </div>
+        <div class="results-tab" onclick="switchResultTab(this, 'sym')">
+          Simbolos <span class="badge" id="badge-sym">0</span>
+        </div>
+        <div class="results-tab" onclick="switchResultTab(this, 'errors')">
+          Errores <span class="badge" id="badge-errors">0</span>
+        </div>
+        <div class="results-tab" onclick="switchResultTab(this, 'llm')">
+          IA <span class="badge" id="badge-llm">0</span>
+        </div>
+      </div>
+      <div class="results-content">
+
+        <div class="results-pane active" id="pane-tokens">
+          <div class="pane-title">Tokens del Analisis Lexico</div>
+          <div class="token-grid" id="token-list">
+            <div class="empty-state"><div class="icon">📝</div><p>Compila para ver los tokens</p></div>
+          </div>
+        </div>
+
+        <div class="results-pane" id="pane-ast">
+          <div class="pane-title">Arbol de Sintaxis Abstracta</div>
+          <div class="ast-tree" id="ast-tree">
+            <div class="empty-state"><div class="icon">🌳</div><p>Compila para ver el AST</p></div>
+          </div>
+        </div>
+
+        <div class="results-pane" id="pane-sym">
+          <div class="pane-title">Tabla de Simbolos</div>
+          <div class="sym-grid" id="sym-table">
+            <div class="empty-state"><div class="icon">📊</div><p>Compila para ver los simbolos</p></div>
+          </div>
+        </div>
+
+        <div class="results-pane" id="pane-errors">
+          <div class="pane-title">Errores de Compilacion</div>
+          <div id="error-list">
+            <div class="empty-state"><div class="icon">✅</div><p>Sin errores</p></div>
+          </div>
+        </div>
+
+        <div class="results-pane" id="pane-llm">
+          <div class="pane-title">Explicacion de la IA (Gemma 3)</div>
+          <div id="llm-content">
+            <div class="empty-state"><div class="icon">🤖</div><p>Compila para ver la explicacion</p></div>
+          </div>
+        </div>
+
+      </div>
+      <div class="results-footer" id="results-footer">
+        <span>Listo</span>
+        <span style="margin-left:auto;font-size:10px;color:var(--text-muted);" id="status-info"></span>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner">
+    <div class="ring"></div>
+    <p>Compilando...</p>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+let editor = null;
+let compileResult = null;
+
+const DEFAULT_CODE = `entero x = 10;
+cadena msg = "Hola Mundo";
+
+si (x > 0) {
+    imprimir(msg);
+} sino {
+    imprimir("negativo");
+}
+
+mientras (x < 5) {
+    x = x + 1;
+}
+
+para (i = 0; i < 3; i = i + 1) {
+    imprimir(i);
+}
+
+ENETRO usuarios {
+    entero id = 1;
+    cadena nombre = "Juan";
+}
+
+imprimir(usuarios.nombre);
+`;
+
+require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
+require(['vs/editor/editor.main'], function () {
+  monaco.editor.defineTheme('es-dark', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [
+      { token: 'keyword', foreground: '3b82f6', fontStyle: 'bold' },
+      { token: 'type', foreground: '22c55e', fontStyle: 'bold' },
+      { token: 'string', foreground: 'f97316' },
+      { token: 'number', foreground: 'a855f7' },
+      { token: 'comment', foreground: '64748b', fontStyle: 'italic' },
+    ],
+    colors: {
+      'editor.background': '#0f172a',
+      'editor.foreground': '#e2e8f0',
+      'editor.lineHighlightBackground': '#1e293b',
+      'editor.selectionBackground': '#1e3a5f',
+      'editorCursor.foreground': '#3b82f6',
+      'editorLineNumber.foreground': '#475569',
+      'editorLineNumber.activeForeground': '#94a3b8',
+      'editorBracketMatch.background': '#3b82f620',
+      'editorBracketMatch.border': '#3b82f6',
+    }
+  });
+
+  editor = monaco.editor.create(document.getElementById('editor-container'), {
+    value: DEFAULT_CODE,
+    language: 'plaintext',
+    theme: 'es-dark',
+    fontSize: 13,
+    fontFamily: "'JetBrains Mono','Consolas','Cascadia Code',monospace",
+    lineNumbers: 'on',
+    minimap: { enabled: false },
+    scrollBeyondLastLine: false,
+    renderWhitespace: 'selection',
+    automaticLayout: true,
+    padding: { top: 12 },
+    bracketPairColorization: { enabled: true },
+    smoothScrolling: true,
+    cursorBlinking: 'smooth',
+    cursorSmoothCaretAnimation: 'on',
+  });
+
+  editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, compile);
+});
+
+function toast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  el.innerHTML = `
+    <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+    <span>${message}</span>
+    <button class="toast-close" onclick="this.parentElement.remove()">x</button>
+  `;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(100px)';
+    el.style.transition = '0.3s';
+    setTimeout(() => el.remove(), 300);
+  }, 4000);
+}
+
+function selectFile(el) {
+  document.querySelectorAll('.explorer-item').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function newFile() {
+  editor.setValue('');
+  toast('Nuevo archivo creado', 'info');
+}
+
+async function loadExample(name, el) {
+  selectFile(el);
+  try {
+    const res = await fetch('/examples/' + name);
+    const data = await res.json();
+    if (data.code) {
+      editor.setValue(data.code);
+      toast('Ejemplo cargado: ' + name, 'success');
+    }
+  } catch (e) {
+    if (name === 'correct_sp.txt') {
+      editor.setValue(DEFAULT_CODE);
+      toast('Ejemplo correcto cargado', 'success');
+    } else if (name === 'errors_sp.txt') {
+      const errorCode = 'entero x = 5;\ncadena y = "texto";\n\nentero y = "texto";\n\nno_existe = 1;\n\nentero pi = 3.14;\nflotante pi = 3.1416;\n\nentero a = 5 + 3.2;\n\nflotante b = 5.5 % 2;\n\ncadena s = -"texto";\n\ncadena r = "hola" + 5;\n\nENETRO usuarios {\n    entero id = 1;\n}\nimprimir(usuarios.apellido);\n\nENETRO productos {\n    cadena codigo = "ABC";\n}\nproductos.codigo = 123;\n\nsi ("verdadero") {\n    imprimir("ok");\n}\n\nmientras ("true") {\n    imprimir("loop");\n}';
+      editor.setValue(errorCode);
+      toast('Ejemplo con errores cargado (11 errores)', 'info');
+    }
+  }
+}
+
+function toggleExplorer() {
+  document.getElementById('explorer').classList.toggle('collapsed');
+}
+function toggleResults() {
+  document.getElementById('results').classList.toggle('collapsed');
+}
+
+function switchResultTab(el, paneId) {
+  document.querySelectorAll('.results-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.results-pane').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  const pane = document.getElementById('pane-' + paneId);
+  if (pane) pane.classList.add('active');
+}
+
+function clearAll() {
+  if (editor) editor.setValue('');
+  compileResult = null;
+  document.getElementById('token-list').innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>Compila para ver los tokens</p></div>';
+  document.getElementById('ast-tree').innerHTML = '<div class="empty-state"><div class="icon">🌳</div><p>Compila para ver el AST</p></div>';
+  document.getElementById('sym-table').innerHTML = '<div class="empty-state"><div class="icon">📊</div><p>Compila para ver los simbolos</p></div>';
+  document.getElementById('error-list').innerHTML = '<div class="empty-state"><div class="icon">✅</div><p>Sin errores</p></div>';
+  document.getElementById('llm-content').innerHTML = '<div class="empty-state"><div class="icon">🤖</div><p>Compila para ver la explicacion</p></div>';
+  document.getElementById('results-footer').querySelector('span:first-child').textContent = 'Listo';
+  document.getElementById('status-info').textContent = '';
+  ['tokens','ast','sym','errors','llm'].forEach(id => {
+    document.getElementById('badge-' + id).textContent = '0';
+    document.getElementById('badge-' + id).className = 'badge';
+  });
+  toast('Todo limpiado', 'info');
+}
+
+async function compile() {
+  if (!editor) return;
+  const code = editor.getValue().trim();
+  if (!code) {
+    toast('El editor esta vacio', 'error');
+    return;
+  }
+
+  document.getElementById('loading-overlay').classList.add('active');
+  const statusEl = document.getElementById('results-footer').querySelector('span:first-child');
+  statusEl.textContent = 'Compilando...';
+
+  try {
+    const res = await fetch('/compile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code })
+    });
+    const data = await res.json();
+    compileResult = data;
+    renderResults(data);
+    toast(data.success ? 'Compilacion exitosa' : 'Compilacion con ' + data.errors.length + ' error(es)', data.success ? 'success' : 'error');
+    statusEl.textContent = data.success ? 'Exito' : 'Con errores';
+  } catch (err) {
+    document.getElementById('error-list').innerHTML = '<div class="error-item"><span class="err-line">ERR</span><div><div class="err-msg">Error de conexion: ' + err.message + '</div></div></div>';
+    document.getElementById('badge-errors').textContent = '!';
+    document.getElementById('badge-errors').className = 'badge error';
+    statusEl.textContent = 'Error';
+    toast('Error de conexion con el servidor', 'error');
+  } finally {
+    document.getElementById('loading-overlay').classList.remove('active');
+  }
+}
+
+function renderResults(data) {
+  const tokens = data.tokens || [];
+  document.getElementById('badge-tokens').textContent = tokens.length;
+  document.getElementById('badge-tokens').className = 'badge info';
+  if (tokens.length > 0) {
+    let html = '';
+    for (const t of tokens) {
+      html += '<span class="token-chip"><span class="tok-type">' + escHtml(t.type) + '</span> <span class="tok-val">"' + escHtml(t.value) + '"</span> <span class="tok-line">:' + t.line + '</span></span>';
+    }
+    document.getElementById('token-list').innerHTML = html;
+  } else {
+    document.getElementById('token-list').innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>Sin tokens</p></div>';
+  }
+
+  const ast = data.ast;
+  document.getElementById('badge-ast').textContent = ast ? '1' : '0';
+  document.getElementById('badge-ast').className = ast ? 'badge info' : 'badge';
+  if (ast) {
+    document.getElementById('ast-tree').innerHTML = '<ul>' + renderASTNode(ast) + '</ul>';
+    document.querySelectorAll('.ast-tree .node-toggle').forEach(function(el) {
+      el.addEventListener('click', function() {
+        var ul = this.closest('li').querySelector('ul');
+        if (ul) {
+          ul.style.display = ul.style.display === 'none' ? '' : 'none';
+          this.textContent = ul.style.display === 'none' ? '▶' : '▼';
+        }
+      });
+    });
+  } else {
+    document.getElementById('ast-tree').innerHTML = '<div class="empty-state"><div class="icon">🌳</div><p>AST no disponible</p></div>';
+  }
+
+  const sym = data.symbol_table || {};
+  const symKeys = Object.keys(sym);
+  document.getElementById('badge-sym').textContent = symKeys.length;
+  document.getElementById('badge-sym').className = symKeys.length > 0 ? 'badge info' : 'badge';
+  if (symKeys.length > 0) {
+    let html = '<span class="sym-hdr">Variable</span><span class="sym-hdr">Tipo</span><span class="sym-hdr">Origen</span>';
+    for (const [name, info] of Object.entries(sym)) {
+      const type = typeof info === 'string' ? info : (info.type || '?');
+      const source = typeof info === 'string' ? 'variable' : (info.source || 'variable');
+      html += '<span class="sym-item sym-name">' + escHtml(name) + '</span>';
+      html += '<span class="sym-item"><span class="sym-type type-' + type + '">' + escHtml(type) + '</span></span>';
+      html += '<span class="sym-item" style="font-size:11px;color:var(--text-muted)">' + escHtml(source) + '</span>';
+    }
+    document.getElementById('sym-table').innerHTML = html;
+  } else {
+    document.getElementById('sym-table').innerHTML = '<div class="empty-state"><div class="icon">📊</div><p>Sin variables</p></div>';
+  }
+
+  const errors = data.errors || [];
+  document.getElementById('badge-errors').textContent = errors.length;
+  document.getElementById('badge-errors').className = errors.length > 0 ? 'badge error' : 'badge success';
+  if (errors.length > 0) {
+    let html = '';
+    for (const e of errors) {
+      html += '<div class="error-item"><span class="err-line">L' + e.line + '</span><div><div class="err-msg">' + escHtml(e.message) + '</div><div class="err-type">' + escHtml(e.type || 'semantic') + '</div></div></div>';
+    }
+    document.getElementById('error-list').innerHTML = html;
+  } else {
+    document.getElementById('error-list').innerHTML = '<div class="empty-state"><div class="icon">✅</div><p>Sin errores</p></div>';
+  }
+
+  const llm = data.llm_explanation || '';
+  document.getElementById('badge-llm').textContent = llm ? '1' : '0';
+  document.getElementById('badge-llm').className = llm ? 'badge info' : 'badge';
+  if (llm) {
+    const isSuccess = data.success;
+    const formatted = escHtml(llm).replace(/\n/g, '<br>').replace(/  /g, '&nbsp;&nbsp;');
+    document.getElementById('llm-content').innerHTML = '<div class="llm-box' + (isSuccess ? ' correct' : '') + '"><div class="llm-header' + (isSuccess ? ' success' : '') + '"><span>' + (isSuccess ? '✅ Compilacion Exitosa' : '❌ Analisis de Errores') + '</span></div><div class="llm-content">' + formatted + '</div></div>';
+  } else {
+    document.getElementById('llm-content').innerHTML = '<div class="empty-state"><div class="icon">🤖</div><p>IA no disponible</p></div>';
+  }
+}
+
+function renderASTNode(node) {
+  if (!node || !node.type) return '<li>null</li>';
+
+  const type = node.type;
+  let attrs = [];
+  for (const k of ['name', 'var_type', 'op', 'literal_type', 'value']) {
+    const v = node[k];
+    if (v !== undefined && v !== null && typeof v !== 'object') {
+      attrs.push(k + '=' + escHtml(String(v)));
+    }
+  }
+  const attrStr = attrs.length > 0 ? ' <span class="node-attr">' + attrs.join(' ') + '</span>' : '';
+
+  let children = [];
+  for (const listAttr of ['statements', 'fields']) {
+    const lst = node[listAttr];
+    if (Array.isArray(lst)) {
+      for (const c of lst) {
+        if (c && c.type) children.push(renderASTNode(c));
+      }
+    }
+  }
+  for (const attr of ['condition', 'then_block', 'else_block', 'body', 'left', 'right', 'operand', 'expression', 'value', 'init', 'update']) {
+    const c = node[attr];
+    if (c && c.type) children.push(renderASTNode(c));
+  }
+
+  const hasChildren = children.length > 0;
+  const toggle = hasChildren ? '<span class="node-toggle">▼</span>' : '';
+  const childrenHtml = hasChildren ? '<ul>' + children.join('') + '</ul>' : '';
+
+  return '<li>' + toggle + '<span class="node-box"><span class="node-type">' + escHtml(type) + '</span>' + attrStr + '</span>' + childrenHtml + '</li>';
+}
+
+function escHtml(s) {
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    compile();
+  }
+});
+
+(function() {
+  try {
+    fetch('/health').then(function(res) { return res.json(); }).then(function(data) {
+      if (!data.ollama_available) {
+        document.querySelector('.header-status .dot').style.background = 'var(--warning)';
+        document.querySelector('.header-status span:last-child').textContent = 'Ollama: no';
+      }
+    });
+  } catch (e) {
+    document.querySelector('.header-status .dot').style.background = 'var(--error)';
+    document.querySelector('.header-status span:last-child').textContent = 'Servidor?';
+  }
+})();
+</script>
+</body>
+</html>

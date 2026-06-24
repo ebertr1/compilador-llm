@@ -1,0 +1,53 @@
+# ── Todos los constructos del lenguaje ──────────────────────
+
+# 1. ENETRO: definición de tabla con columnas
+ENETRO usuarios {
+    entero id = 1;
+    cadena nombre = "Juan";
+    flotante altura = 1.75;
+}
+
+# 2. Declaración de variables (3 tipos)
+entero x = 5;
+flotante pi = 3.14;
+cadena saludo = "Hola";
+cadena nombre = "María";
+
+# 3. Condicional si/sino
+si (x > 0) {
+    imprimir(saludo);
+    imprimir(nombre);
+} sino {
+    imprimir("negativo");
+}
+
+# 4. Bucle mientras
+mientras (x < 3) {
+    x = x + 1;
+}
+
+# 5. Bucle para (auto-declara i)
+para (i = 0; i < 2; i = i + 1) {
+    imprimir(i);
+}
+
+# 6. Asignación simple
+x = x + 10;
+
+# 7. Operaciones aritméticas
+entero resultado = (x + 10) * 2;
+flotante area = pi * 2.0;
+entero resto = 10 % 3;
+entero negativo = -5 + 3;
+
+# 8. Operaciones con cadenas
+cadena mensaje = saludo + " " + nombre;
+
+# 9. Comparaciones (resultado entero)
+entero es_mayor = x > 18;
+entero iguales = x == 5;
+
+# 10. Impresión
+imprimir(mensaje);
+imprimir("El resultado es: ");
+imprimir(resultado);
