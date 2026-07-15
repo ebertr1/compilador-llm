@@ -1,0 +1,67 @@
+@startuml
+skinparam backgroundColor #FAFBFC
+skinparam classAttributeIconSize 0
+
+class "CompileController" as REST {
+  + compile(request): CompileResponse
+}
+class "CompileWebSocketHandler" as WS {
+  + handleTextMessage(session, message)
+}
+class "SemanticOrchestrator" as ORCH {
+  - lexicalCache: Map
+  + compile(code): CompileResponse
+  + clearCache()
+}
+class "SemanticAnalyzer" as ANALYZER {
+  + analyze(ast): AnalysisResult
+  - analyzeNode(node, symbols, errors)
+  - resolveType(node, symbols, errors): String
+  - resolveBinOp(node, symbols, errors): String
+}
+class "LexicalServiceClient" as LEXCL {
+  + tokenize(code): LexicalResult
+}
+class "SyntacticServiceClient" as SYNCL {
+  + parse(tokens): SyntacticResult
+}
+class "OllamaService" as OLLAMA {
+  + warmUp()
+  + generateGlobalExplanation(code, errors): String
+  + generateErrorExplanation(code, error): String
+}
+class "SymbolTable" as SYM {
+  - variables: Map
+  - enetroTables: Map
+  + addVariable(name, type)
+  + existsVariable(name): boolean
+  + addEnetro(name, columns)
+  + show(): Map
+}
+class "CompileRequest" as REQ {
+  code: String
+}
+class "CompileResponse" as RES {
+  success: boolean
+  errors: List
+  errorExplanations: List<String>
+  text: String
+  tokens: List
+  tree: Map
+  symbolTable: Map
+  llmExplanation: String
+}
+class "CompilerError" as ERR
+
+REST --> ORCH
+WS --> ORCH
+ORCH --> LEXCL
+ORCH --> SYNCL
+ORCH --> ANALYZER
+ORCH --> OLLAMA
+ANALYZER --> SYM
+ANALYZER --> ERR
+REST --> REQ
+REST --> RES
+RES --> ERR
+@enduml

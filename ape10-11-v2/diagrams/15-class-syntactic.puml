@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor #FAFBFC
+skinparam classAttributeIconSize 0
+
+class "ParseController" as CTRL {
+  + parse(request): ParseResponse
+}
+class "ParserService" as SVC {
+  + parse(tokens): ParseResponse
+}
+class "RecursiveDescentParser" as RDP {
+  - tokens: List<Token>
+  - pos: int
+  - errors: List<CompilerError>
+  + parse(tokens): ParseResponse
+  - parseProgram(): AstNode
+  - parseStatement(): AstNode
+  - parseDeclaration(): AstNode
+  - parseExpression(): AstNode
+  - parseComparison(): AstNode
+  - parseAdditive(): AstNode
+  - parseMultiplicative(): AstNode
+  - parseUnary(): AstNode
+  - parsePrimary(): AstNode
+  - parseIfStmt(): AstNode
+  - parseWhileStmt(): AstNode
+  - parseForStmt(): AstNode
+  - parsePrintStmt(): AstNode
+  - parseEnetroDef(): AstNode
+  - parseBlock(): AstNode
+}
+class "AstNode" as AST {
+  type: String
+  attributes: Map
+  + put(key, value)
+  + get(key): Object
+  + getChildren(key): List
+}
+class "Token" as TOKEN
+class "ParseRequest" as REQ
+class "ParseResponse" as RES
+
+CTRL --> SVC
+SVC --> RDP
+RDP --> AST
+RDP --> TOKEN
+CTRL --> REQ
+CTRL --> RES
+RES --> AST
+@enduml

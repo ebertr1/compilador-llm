@@ -1,0 +1,21 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.4)
+
+2026-07-15T00:05:24.698-05:00  INFO 236605 --- [syntactic-service] [           main] c.c.syntactic.SyntacticApplication       : Starting SyntacticApplication using Java 21.0.11 with PID 236605 (/home/dejnf/Escritorio/APE10-11/ape10-11-v2/syntactic-service/target/classes started by dejnf in /home/dejnf/Escritorio/APE10-11/ape10-11-v2/syntactic-service)
+2026-07-15T00:05:24.706-05:00  INFO 236605 --- [syntactic-service] [           main] c.c.syntactic.SyntacticApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-07-15T00:05:27.982-05:00  INFO 236605 --- [syntactic-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8082 (http)
+2026-07-15T00:05:28.041-05:00  INFO 236605 --- [syntactic-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-15T00:05:28.042-05:00  INFO 236605 --- [syntactic-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-07-15T00:05:28.194-05:00  INFO 236605 --- [syntactic-service] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-07-15T00:05:28.198-05:00  INFO 236605 --- [syntactic-service] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3282 ms
+2026-07-15T00:05:29.269-05:00  INFO 236605 --- [syntactic-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8082 (http) with context path ''
+2026-07-15T00:05:29.319-05:00  INFO 236605 --- [syntactic-service] [           main] c.c.syntactic.SyntacticApplication       : Started SyntacticApplication in 6.375 seconds (process running for 8.36)
+2026-07-15T00:05:40.442-05:00  INFO 236605 --- [syntactic-service] [nio-8082-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-15T00:05:40.443-05:00  INFO 236605 --- [syntactic-service] [nio-8082-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-15T00:05:40.445-05:00  INFO 236605 --- [syntactic-service] [nio-8082-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms

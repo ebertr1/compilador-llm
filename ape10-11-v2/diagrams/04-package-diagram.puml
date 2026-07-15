@@ -1,0 +1,82 @@
+@startuml
+!define PACKAGE package
+skinparam backgroundColor #FAFBFC
+skinparam packageStyle rectangle
+
+PACKAGE "api-gateway" as GW {
+  PACKAGE "controller" as GWCTRL {
+    CLASS "GatewayController"
+  }
+  PACKAGE "config" as GWCFG {
+    CLASS "CorsConfig"
+  }
+}
+
+PACKAGE "lexical-service" as LEX {
+  PACKAGE "controller" as LEXCTRL {
+    CLASS "LexController"
+  }
+  PACKAGE "service" as LEXSVC {
+    CLASS "LexerService"
+  }
+  PACKAGE "model" as LEXMOD {
+    CLASS "Token"
+    CLASS "LexRequest"
+    CLASS "LexResponse"
+    CLASS "CompilerError"
+  }
+  PACKAGE "dfa" as DFA {
+    CLASS "TokenType"
+  }
+}
+
+PACKAGE "syntactic-service" as SYN {
+  PACKAGE "controller" as SYNCTRL {
+    CLASS "ParseController"
+  }
+  PACKAGE "service" as SYSVC {
+    CLASS "ParserService"
+  }
+  PACKAGE "model" as SYNMOD {
+    CLASS "AstNode"
+    CLASS "Token"
+    CLASS "ParseRequest"
+    CLASS "ParseResponse"
+    CLASS "CompilerError"
+  }
+  PACKAGE "grammar" as GRAM {
+    CLASS "RecursiveDescentParser"
+  }
+}
+
+PACKAGE "semantic-service" as SEM {
+  PACKAGE "controller" as SEMCTRL {
+    CLASS "CompileController"
+    CLASS "CompileWebSocketHandler"
+  }
+  PACKAGE "service" as SEMSVC {
+    CLASS "SemanticOrchestrator"
+    CLASS "SemanticAnalyzer"
+    CLASS "LexicalServiceClient"
+    CLASS "SyntacticServiceClient"
+  }
+  PACKAGE "model" as SEMMOD {
+    CLASS "CompileRequest"
+    CLASS "CompileResponse"
+    CLASS "CompilerError"
+    CLASS "SymbolTable"
+  }
+  PACKAGE "config" as SEMCFG {
+    CLASS "AppConfig"
+    CLASS "WebSocketConfig"
+  }
+}
+
+GWCTRL ..> SEMCTRL : HTTP
+SEMCTRL ..> SEMSVC
+SEMSVC ..> LEXCTRL : HTTP
+SEMSVC ..> SYNCTRL : HTTP
+LEXCTRL ..> LEXSVC
+SYNCTRL ..> SYSVC
+SYSVC ..> GRAM
+@enduml

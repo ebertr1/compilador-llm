@@ -1,0 +1,8 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: api-gateway
+services:
+  semantic:
+    url: http://localhost:8083

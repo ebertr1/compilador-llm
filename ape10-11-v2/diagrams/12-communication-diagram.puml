@@ -1,0 +1,31 @@
+@startuml
+skinparam backgroundColor #FAFBFC
+skinparam defaultFontName Segoe UI
+
+actor "Usuario" as User
+
+participant "Frontend\nReact" as FE
+participant "API Gateway\n:8080" as GW
+participant "Semantic\nService :8083" as SEM
+participant "Lexical\nService :8081" as LEX
+participant "Syntactic\nService :8082" as SYN
+
+User -> FE: 1. Escribe código
+FE -> GW: 2. POST /api/compile
+GW -> SEM: 3. POST /compile
+SEM -> LEX: 4. POST /lex\n{code}
+LEX --> SEM: 5. {tokens, errors}
+SEM -> SYN: 6. POST /parse\n{tokens}
+SYN --> SEM: 7. {tree, errors}
+SEM -> SEM: 8. Análisis semántico
+SEM --> GW: 9. Resultado JSON
+GW --> FE: 10. Response
+FE --> User: 11. Visualiza resultado
+
+== WebSocket alternativo ==
+User -> FE: (mismo código)
+FE -> SEM: 2b. WebSocket /ws/compile
+SEM --> FE: 3b. {phase:lexical, status:done}
+SEM --> FE: 4b. {phase:syntactic, status:done}
+SEM --> FE: 5b. {type:result, data:{...}}
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+skinparam backgroundColor #FAFBFC
+skinparam classAttributeIconSize 0
+
+class "AstNode extends HashMap<String, Object>" as BASE {
+  + AstNode(type: String)
+  + getChildren(key): List<AstNode>
+}
+
+note "type='Program'\nstatements: List<Map>" as N1
+note "type='VarDecl'\nvarType, name, value, line" as N2
+note "type='Assign'\nname, value, line" as N3
+note "type='BinOp'\nleft, op, right, line" as N4
+note "type='UnaryOp'\nop, operand, line" as N5
+note "type='Literal'\nvalue, literalType" as N6
+note "type='VarRef'\nname, line" as N7
+note "type='Block'\nstatements" as N8
+note "type='IfStmt'\ncondition, thenBlock, elseBlock, line" as N9
+note "type='WhileStmt'\ncondition, body, line" as N10
+note "type='ForStmt'\ninit, condition, update, body, line" as N11
+note "type='PrintStmt'\nexpression, line" as N12
+note "type='EnetroDef'\nname, fields, line" as N13
+note "type='EnetroField'\nvarType, name, value, line" as N14
+note "type='EnetroAccess'\nenetroName, fieldName, line" as N15
+
+N1 .down. BASE
+N2 .down. BASE
+N3 .down. BASE
+N4 .down. BASE
+N5 .down. BASE
+N6 .down. BASE
+N7 .down. BASE
+N8 .down. BASE
+N9 .down. BASE
+N10 .down. BASE
+N11 .down. BASE
+N12 .down. BASE
+N13 .down. BASE
+N14 .down. BASE
+N15 .down. BASE
+
+note "Todos los nodos son instancias\nde AstNode (HashMap<String, Object>)\nLos atributos son entradas del Map" as LEGEND
+BASE .down. LEGEND
+@enduml

@@ -1,0 +1,41 @@
+@startuml
+skinparam backgroundColor #FAFBFC
+
+rectangle "Código Fuente\n(texto)" as INPUT
+
+rectangle "Lexical Service\nJava / DFA Tokenizer" as LEX {
+  rectangle "LexerService\n.tokenize()" as LEXSVC
+}
+
+database "Tokens\n{type, value, line}" as TOKENS
+
+rectangle "Syntactic Service\nJava Recursive Descent" as SYN {
+  rectangle "RecursiveDescentParser\n.parse()" as SYNSVC
+}
+
+database "AST\nProgram..." as AST
+
+rectangle "Semantic Service\nVisitor Pattern" as SEM {
+  rectangle "SemanticAnalyzer\n.analyze()" as SEMSVC
+}
+
+database "Tabla de\nSímbolos" as SYMTAB
+
+rectangle "OLLAMA\nllama3.1:8b" as OLLAMA
+
+rectangle "Resultado\nJSON" as OUTPUT
+
+INPUT --> LEXSVC : POST /lex
+LEXSVC --> TOKENS
+TOKENS --> SYNSVC : POST /parse
+SYNSVC --> AST
+AST --> SEMSVC : llamada local
+SEMSVC --> SYMTAB : pobla/consulta
+SEMSVC --> OLLAMA : generateExplanation()
+OLLAMA --> SEMSVC : texto IA
+OUTPUT --> LEXSVC : tokens[]
+OUTPUT --> SYNSVC : tree{}
+OUTPUT --> SEMSVC : symbolTable{}
+OUTPUT --> SEMSVC : llmExplanation
+OUTPUT --> SEMSVC : errorExplanations[]
+@enduml

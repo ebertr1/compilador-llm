@@ -1,0 +1,13 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: semantic-service
+services:
+  lexical:
+    url: http://localhost:8081
+  syntactic:
+    url: http://localhost:8082
+ollama:
+  url: http://localhost:11434
+  model: gemma3:1b

@@ -1,0 +1,48 @@
+@startuml
+!define COMPONENT rectangle
+skinparam backgroundColor #FAFBFC
+skinparam componentStyle rectangle
+
+package "Frontend" {
+  COMPONENT "React SPA\nVite + Monaco" as FE
+}
+
+package "API Gateway :8080" as GW {
+  COMPONENT "GatewayController\n/api/compile" as GWCtrl
+  COMPONENT "CorsConfig" as CORS
+}
+
+package "Semantic Service :8083" as SEM {
+  COMPONENT "CompileController\nPOST /compile" as SEMCtrl
+  COMPONENT "CompileWebSocketHandler\nWS /ws/compile" as SEMWS
+  COMPONENT "SemanticOrchestrator" as ORCH
+  COMPONENT "SemanticAnalyzer" as ANALYZER
+  COMPONENT "LexicalServiceClient" as LEXCL
+  COMPONENT "SyntacticServiceClient" as SYNCL
+}
+
+package "Lexical Service :8081" as LEX {
+  COMPONENT "LexController\nPOST /lex" as LEXCtrl
+  COMPONENT "LexerService\nDFA Tokenizer" as LEXSVC
+}
+
+package "Syntactic Service :8082" as SYN {
+  COMPONENT "ParseController\nPOST /parse" as SYNCtrl
+  COMPONENT "ParserService" as SYNSVC
+  COMPONENT "RecursiveDescentParser" as RDP
+}
+
+FE --> GWCtrl : REST HTTP
+FE --> SEMWS : WebSocket
+GWCtrl --> SEMCtrl : HTTP
+SEMCtrl --> ORCH
+SEMWS --> ORCH
+ORCH --> LEXCL
+ORCH --> SYNCL
+ORCH --> ANALYZER
+LEXCL --> LEXCtrl : HTTP
+SYNCL --> SYNCtrl : HTTP
+LEXCtrl --> LEXSVC
+SYNCtrl --> SYNSVC
+SYNSVC --> RDP
+@enduml

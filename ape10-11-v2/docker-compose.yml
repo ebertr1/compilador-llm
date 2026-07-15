@@ -1,0 +1,64 @@
+version: '3.8'
+services:
+  lexical-service:
+    build:
+      context: ./lexical-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    networks:
+      - compiler-net
+
+  syntactic-service:
+    build:
+      context: ./syntactic-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    networks:
+      - compiler-net
+
+  semantic-service:
+    build:
+      context: ./semantic-service
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      - SERVICES_LEXICAL_URL=http://lexical-service:8081
+      - SERVICES_SYNTACTIC_URL=http://syntactic-service:8082
+    depends_on:
+      - lexical-service
+      - syntactic-service
+    networks:
+      - compiler-net
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVICES_SEMANTIC_URL=http://semantic-service:8083
+    depends_on:
+      - semantic-service
+    networks:
+      - compiler-net
+
+  frontend:
+    image: node:21-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api-gateway
+    networks:
+      - compiler-net
+
+networks:
+  compiler-net:
+    driver: bridge

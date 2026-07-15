@@ -1,0 +1,31 @@
+@startuml
+!define COMPONENT rectangle
+skinparam backgroundColor #FAFBFC
+
+COMPONENT "GatewayController\nPOST /api/compile" as GW #CBA6F7
+COMPONENT "CompileController\nPOST /compile" as SEMCTRL #F9E2AF
+COMPONENT "CompileWSHandler\n/ws/compile" as SEMWS #F9E2AF
+COMPONENT "SemanticOrchestrator" as ORCH #F9E2AF
+COMPONENT "SemanticAnalyzer" as ANALYZER #F9E2AF
+COMPONENT "LexicalServiceClient" as LEXCL #A6E3A1
+COMPONENT "SyntacticServiceClient" as SYNCL #F38BA8
+COMPONENT "LexController\nPOST /lex" as LEXCTRL #A6E3A1
+COMPONENT "LexerService\n(DFA Tokenizer)" as LEXSVC #A6E3A1
+COMPONENT "ParseController\nPOST /parse" as SYNCTRL #F38BA8
+COMPONENT "RecursiveDescent\nParser" as RDP #F38BA8
+COMPONENT "SymbolTable" as SYM #94E2D5
+COMPONENT "AstNode Model" as AST #F5C2E7
+
+GW --> SEMCTRL : HTTP
+SEMCTRL --> ORCH
+SEMWS --> ORCH
+ORCH --> LEXCL
+ORCH --> SYNCL
+ORCH --> ANALYZER
+LEXCL --> LEXCTRL : HTTP
+SYNCL --> SYNCTRL : HTTP
+LEXCTRL --> LEXSVC
+SYNCTRL --> RDP
+ANALYZER --> SYM
+RDP --> AST
+@enduml

@@ -4,6 +4,12 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# Activar virtualenv si existe
+VENV_DIR="$(cd "$SCRIPT_DIR/.." && pwd)/venv"
+if [ -f "$VENV_DIR/bin/activate" ]; then
+    . "$VENV_DIR/bin/activate"
+fi
+
 echo "========================================================"
 echo "  Compilador Web - Lenguaje Tipado Estático"
 echo "========================================================"
@@ -53,4 +59,4 @@ echo "  Para detener: Ctrl+C"
 echo "========================================================"
 echo ""
 
-python3 web_api.py
+python3 -m controllers.web_api

@@ -1,0 +1,14 @@
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/semantic-service/src/main/java/com/compiler/semantic/controller/CompileWebSocketHandler.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/semantic-service/src/main/java/com/compiler/semantic/config/AppConfig.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/semantic-service/src/main/java/com/compiler/semantic/controller/CompileController.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/semantic-service/src/main/java/com/compiler/semantic/service/SyntacticServiceClient.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/semantic-service/src/main/java/com/compiler/semantic/model/CompileResponse.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/semantic-service/src/main/java/com/compiler/semantic/service/LexicalServiceClient.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/semantic-service/src/main/java/com/compiler/semantic/service/OllamaService.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/semantic-service/src/main/java/com/compiler/semantic/service/SemanticAnalyzer.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/semantic-service/src/main/java/com/compiler/semantic/config/WebSocketConfig.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/semantic-service/src/main/java/com/compiler/semantic/SemanticApplication.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/semantic-service/src/main/java/com/compiler/semantic/model/CompileRequest.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/semantic-service/src/main/java/com/compiler/semantic/model/SymbolTable.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/semantic-service/src/main/java/com/compiler/semantic/model/CompilerError.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/semantic-service/src/main/java/com/compiler/semantic/service/SemanticOrchestrator.java

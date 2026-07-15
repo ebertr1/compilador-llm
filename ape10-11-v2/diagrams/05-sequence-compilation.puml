@@ -1,0 +1,48 @@
+@startuml
+skinparam backgroundColor #FAFBFC
+actor Usuario as User
+participant "React Frontend" as FE
+participant "API Gateway\n:8080" as GW
+participant "Semantic\nOrchestrator" as ORCH
+participant "Lexical\nService :8081" as LEX
+participant "Syntactic\nService :8082" as SYN
+participant "Semantic\nAnalyzer" as SEM
+participant "OLLAMA\nllama3.1:8b" as OLLAMA
+
+User -> FE: Escribe código
+FE -> GW: POST /api/compile\n{code: "..."}
+GW -> ORCH: POST /compile {code}
+
+ORCH -> LEX: POST /lex {code}
+LEX --> ORCH: {tokens, errors}
+
+alt Hay errores léxicos
+  ORCH --> GW: {success: false, errors}
+  GW --> FE: Error léxico
+  FE --> User: Muestra errores
+else No errores léxicos
+  ORCH -> SYN: POST /parse {tokens}
+  SYN --> ORCH: {tree, errors}
+
+  alt Hay errores sintácticos
+    ORCH --> GW: {success: false, errors}
+    GW --> FE: Error sintáctico
+    FE --> User: Muestra errores
+  else No errores sintácticos
+    ORCH -> SEM: analyze(tree)
+    SEM --> ORCH: {symbolTable, errors}
+
+    alt Hay errores semánticos
+      ORCH -> OLLAMA: generateErrorExplanation()
+      OLLAMA --> ORCH: texto explicación
+      ORCH --> GW: {success: false,\n errors, symbolTable,\n llmExplanation}
+    else Compilación exitosa
+      ORCH -> OLLAMA: generateGlobalExplanation()
+      OLLAMA --> ORCH: texto explicación
+      ORCH --> GW: {success: true,\n tokens, tree,\n symbolTable,\n llmExplanation}
+    end
+    GW --> FE: Resultado JSON
+    FE --> User: Muestra resultado
+  end
+end
+@enduml

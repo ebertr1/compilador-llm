@@ -1,0 +1,11 @@
+@startuml
+!define PERSON rectangle
+!define SYSTEM rectangle
+skinparam backgroundColor #FAFBFC
+
+PERSON "Usuario\n(Estudiante)" as User #89B4FA
+
+SYSTEM "Compilador APE10-11 v2\n[Microservicios Java Spring Boot]" as Compiler #CBA6F7
+
+User --> Compiler : Compila código fuente\n(REST HTTP / WebSocket)
+@enduml

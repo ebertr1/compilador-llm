@@ -1,0 +1,51 @@
+# ── TODOS los tipos de error semántico ─────────────────────
+
+# Error 1: tipo incompatible en asignación
+entero y = 10;
+y = "texto";
+
+# Error 2: variable no declarada
+entero z = no_existe;
+
+# Error 3: redeclaración
+flotante pi = 3.14;
+entero pi = 5;
+
+# Error 4: tipos mixtos en operación
+entero a = 10;
+flotante b = 3.5;
+entero c = a + b;
+
+# Error 5: módulo con flotante
+entero m = 5.5 % 2;
+
+# Error 6: operador unario en cadena
+cadena t = "test";
+cadena u = -t;
+
+# Error 7: cadena + entero
+cadena s = "hola";
+cadena r = s + 5;
+
+# Error 8: ENETRO - columna no existe
+ENETRO usuarios {
+    entero edad = 1;
+}
+imprimir(apellido);
+
+# Error 9: ENETRO - tipo incorrecto en columna
+ENETRO productos {
+    entero codigo = "ABC";
+}
+
+# Error 10: condición si no es entero
+si ("texto") {
+    imprimir("ok");
+}
+
+# Error 11: condición mientras no es entero
+mientras ("texto") {
+    imprimir("ok");
+}
+
+

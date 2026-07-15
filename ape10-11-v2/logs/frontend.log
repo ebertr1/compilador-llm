@@ -1,0 +1,25 @@
+
+> ape10-11-frontend@1.0.0 dev
+> vite --host 0.0.0.0
+
+
+  VITE v5.4.21  ready in 1879 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: http://192.168.0.8:5173/
+  ➜  Network: http://172.18.0.1:5173/
+0:05:17 [vite] http proxy error: /api/examples/correct_sp.txt
+Error: connect ECONNREFUSED 127.0.0.1:8080
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1631:16)
+0:05:22 [vite] http proxy error: /api/compile
+Error: connect ECONNREFUSED 127.0.0.1:8080
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1631:16)
+0:05:24 [vite] http proxy error: /api/compile
+Error: connect ECONNREFUSED 127.0.0.1:8080
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1631:16)
+0:05:25 [vite] http proxy error: /api/compile
+Error: connect ECONNREFUSED 127.0.0.1:8080
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1631:16)
+0:05:29 [vite] http proxy error: /api/compile
+Error: connect ECONNREFUSED 127.0.0.1:8080
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1631:16)

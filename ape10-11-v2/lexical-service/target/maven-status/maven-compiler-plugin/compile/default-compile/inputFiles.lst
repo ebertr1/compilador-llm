@@ -1,0 +1,8 @@
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/lexical-service/src/main/java/com/compiler/lexical/model/Token.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/lexical-service/src/main/java/com/compiler/lexical/model/LexRequest.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/lexical-service/src/main/java/com/compiler/lexical/controller/LexController.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/lexical-service/src/main/java/com/compiler/lexical/dfa/TokenType.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/lexical-service/src/main/java/com/compiler/lexical/model/LexResponse.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/lexical-service/src/main/java/com/compiler/lexical/LexicalApplication.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/lexical-service/src/main/java/com/compiler/lexical/model/CompilerError.java
+/home/dejnf/Escritorio/APE10-11/ape10-11-v2/lexical-service/src/main/java/com/compiler/lexical/service/LexerService.java

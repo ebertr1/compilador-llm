@@ -6,6 +6,7 @@
 <title>Compilador ES — IDE Profesional</title>
 
 <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@viz-js/viz@3.9.0/lib/viz-standalone.min.js"></script>
 
 <style>
 :root {
@@ -378,6 +379,29 @@ html, body {
 .toast .toast-close { margin-left: auto; cursor: pointer; background: none; border: none; color: var(--text-muted); font-size: 16px; }
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
+.ast-subtabs {
+  display: flex; gap: 0; margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-light);
+}
+.ast-subtab {
+  padding: 4px 12px; cursor: pointer; font-size: 11px; font-weight: 500;
+  color: var(--text-muted); border-bottom: 2px solid transparent;
+  transition: all var(--transition); background: none; border-top: none; border-left: none; border-right: none;
+  font-family: var(--font-ui);
+}
+.ast-subtab:hover { color: var(--text-secondary); }
+.ast-subtab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.ast-view { display: none; }
+.ast-view.active { display: block; }
+.ast-view svg {
+  max-width: 100%; height: auto; border-radius: var(--radius-sm);
+  background: #FAFBFC;
+}
+.ast-graph-container {
+  overflow: auto; max-height: calc(100vh - 280px);
+  border-radius: var(--radius-sm); border: 1px solid var(--border-light);
+}
+.ast-graph-container svg { display: block; margin: 0 auto; }
 .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
 .empty-state .icon { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
 .empty-state p { font-size: 13px; }
@@ -486,8 +510,25 @@ html, body {
 
         <div class="results-pane" id="pane-ast">
           <div class="pane-title">Arbol de Sintaxis Abstracta</div>
-          <div class="ast-tree" id="ast-tree">
-            <div class="empty-state"><div class="icon">🌳</div><p>Compila para ver el AST</p></div>
+          <div class="ast-subtabs">
+            <button class="ast-subtab active" onclick="switchAstView(this, 'tree')">Arbol</button>
+            <button class="ast-subtab" onclick="switchAstView(this, 'svg')">SVG</button>
+            <button class="ast-subtab" onclick="switchAstView(this, 'dot')">Graphviz</button>
+          </div>
+          <div class="ast-view active" id="ast-view-tree">
+            <div class="ast-tree" id="ast-tree">
+              <div class="empty-state"><div class="icon">🌳</div><p>Compila para ver el AST</p></div>
+            </div>
+          </div>
+          <div class="ast-view" id="ast-view-svg">
+            <div class="ast-graph-container" id="ast-svg-container">
+              <div class="empty-state"><div class="icon">🎨</div><p>Compila para ver el AST grafico</p></div>
+            </div>
+          </div>
+          <div class="ast-view" id="ast-view-dot">
+            <div class="ast-graph-container" id="ast-dot-container">
+              <div class="empty-state"><div class="icon">🔮</div><p>Compila para ver el AST con Graphviz</p></div>
+            </div>
           </div>
         </div>
 
@@ -662,6 +703,65 @@ function toggleResults() {
   document.getElementById('results').classList.toggle('collapsed');
 }
 
+function switchAstView(el, view) {
+  document.querySelectorAll('.ast-subtab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.ast-view').forEach(function(v) { v.classList.remove('active'); });
+  el.classList.add('active');
+  var pane = document.getElementById('ast-view-' + view);
+  if (pane) pane.classList.add('active');
+  if (view === 'dot' && compileResult && compileResult.dot) {
+    renderDotView(compileResult.dot);
+  }
+  if (view === 'svg' && compileResult && compileResult.svg) {
+    renderSvgView(compileResult.svg);
+  }
+}
+
+function renderSvgView(svgContent) {
+  var container = document.getElementById('ast-svg-container');
+  if (!svgContent) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">🎨</div><p>SVG no disponible</p></div>';
+    return;
+  }
+  container.innerHTML = svgContent;
+  var svg = container.querySelector('svg');
+  if (svg) {
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    svg.style.maxWidth = '100%';
+    svg.style.height = 'auto';
+  }
+}
+
+function renderDotView(dotSource) {
+  var container = document.getElementById('ast-dot-container');
+  if (!dotSource) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">🔮</div><p>DOT no disponible</p></div>';
+    return;
+  }
+  try {
+    if (typeof Viz !== 'undefined') {
+      Viz.instance().then(function(viz) {
+        var svgStr = viz.renderString(dotSource, { format: 'svg', engine: 'dot' });
+        container.innerHTML = svgStr;
+        var svg = container.querySelector('svg');
+        if (svg) {
+          svg.removeAttribute('width');
+          svg.removeAttribute('height');
+          svg.style.maxWidth = '100%';
+          svg.style.height = 'auto';
+        }
+      }).catch(function(err) {
+        container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error al renderizar DOT: ' + escHtml(err.message) + '</p></div>';
+      });
+    } else {
+      container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Viz.js no cargo correctamente</p></div>';
+    }
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error: ' + escHtml(err.message) + '</p></div>';
+  }
+}
+
 function switchResultTab(el, paneId) {
   document.querySelectorAll('.results-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.results-pane').forEach(p => p.classList.remove('active'));
@@ -749,8 +849,20 @@ function renderResults(data) {
         }
       });
     });
+    if (data.svg) {
+      renderSvgView(data.svg);
+    } else {
+      document.getElementById('ast-svg-container').innerHTML = '<div class="empty-state"><div class="icon">🎨</div><p>SVG no disponible</p></div>';
+    }
+    if (data.dot) {
+      renderDotView(data.dot);
+    } else {
+      document.getElementById('ast-dot-container').innerHTML = '<div class="empty-state"><div class="icon">🔮</div><p>DOT no disponible</p></div>';
+    }
   } else {
     document.getElementById('ast-tree').innerHTML = '<div class="empty-state"><div class="icon">🌳</div><p>AST no disponible</p></div>';
+    document.getElementById('ast-svg-container').innerHTML = '<div class="empty-state"><div class="icon">🎨</div><p>AST no disponible</p></div>';
+    document.getElementById('ast-dot-container').innerHTML = '<div class="empty-state"><div class="icon">🔮</div><p>AST no disponible</p></div>';
   }
 
   const sym = data.symbol_table || {};
@@ -789,7 +901,7 @@ function renderResults(data) {
   document.getElementById('badge-llm').className = llm ? 'badge info' : 'badge';
   if (llm) {
     const isSuccess = data.success;
-    const formatted = escHtml(llm).replace(/\n/g, '<br>').replace(/  /g, '&nbsp;&nbsp;');
+    const formatted = escHtml(llm).replace(/\*/g, '').replace(/\n/g, '<br>').replace(/  /g, '&nbsp;&nbsp;');
     document.getElementById('llm-content').innerHTML = '<div class="llm-box' + (isSuccess ? ' correct' : '') + '"><div class="llm-header' + (isSuccess ? ' success' : '') + '"><span>' + (isSuccess ? '✅ Compilacion Exitosa' : '❌ Analisis de Errores') + '</span></div><div class="llm-content">' + formatted + '</div></div>';
   } else {
     document.getElementById('llm-content').innerHTML = '<div class="empty-state"><div class="icon">🤖</div><p>IA no disponible</p></div>';

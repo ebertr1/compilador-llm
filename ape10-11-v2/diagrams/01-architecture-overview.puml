@@ -1,0 +1,24 @@
+@startuml
+!define RECTANGLE class
+skinparam backgroundColor #FAFBFC
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 11
+skinparam packageStyle rectangle
+
+RECTANGLE "React Frontend\n(Monaco Editor)" as Web <<browser>> #89B4FA
+
+package "Java Spring Boot Microservices" as Backend {
+  RECTANGLE "API Gateway\n:8080" as Gateway #CBA6F7
+  RECTANGLE "Semantic Service\n:8083\nREST + WebSocket" as Semantic #F9E2AF
+  RECTANGLE "Lexical Service\n:8081" as Lexical #A6E3A1
+  RECTANGLE "Syntactic Service\n:8082" as Syntactic #F38BA8
+}
+
+Web --> Gateway : HTTP POST /api/compile
+Web --> Semantic : WebSocket /ws/compile
+Gateway --> Semantic : POST /compile
+Semantic --> Lexical : POST /lex (HTTP)
+Semantic --> Syntactic : POST /parse (HTTP)
+Lexical --> Semantic : tokens + errors
+Syntactic --> Semantic : AST + errors
+@enduml

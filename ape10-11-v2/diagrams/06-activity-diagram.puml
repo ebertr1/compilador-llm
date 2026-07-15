@@ -1,0 +1,34 @@
+@startuml
+skinparam backgroundColor #FAFBFC
+start
+:Usuario escribe código fuente;
+:Presiona Compilar;
+:API Gateway recibe POST /api/compile;
+:Semantic Orchestrator inicia pipeline;
+
+:LLAMAR Léxico Service\nPOST /lex;
+
+if (¿Errores léxicos?) then (Sí)
+  :Retornar JSON con errores léxicos;
+  stop
+endif
+
+:LLAMAR Sintáctico Service\nPOST /parse;
+
+if (¿Errores sintácticos?) then (Sí)
+  :Retornar JSON con errores sintácticos;
+  stop
+endif
+
+:Recorrer AST con Analizador Semántico;
+:Verificar tipos y declaraciones;
+:Construir tabla de símbolos;
+
+if (¿Errores semánticos?) then (Sí)
+  :Retornar JSON con\nerrores semánticos +\ntabla de símbolos;
+  stop
+endif
+
+:Retornar JSON exitoso:\ntokens + AST + symbolTable;
+stop
+@enduml

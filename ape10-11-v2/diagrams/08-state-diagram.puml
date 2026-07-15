@@ -1,0 +1,24 @@
+@startuml
+skinparam backgroundColor #FAFBFC
+
+state "Código Fuente" as INIT
+state "SOLICITAR\nLéxico" as LEX_REQ
+state "ESPERAR\nLéxico" as LEX_WAIT
+state "SOLICITAR\nSintáctico" as SYN_REQ
+state "ESPERAR\nSintáctico" as SYN_WAIT
+state "ANALIZAR\nSemántica" as SEM
+state "RESPUESTA\nÉxito" as OK
+state "RESPUESTA\nError Léxico" as ERR_LEX
+state "RESPUESTA\nError Sintáctico" as ERR_SYN
+state "RESPUESTA\nError Semántico" as ERR_SEM
+
+INIT --> LEX_REQ
+LEX_REQ --> LEX_WAIT
+LEX_WAIT --> SYN_REQ : Sin errores
+LEX_WAIT --> ERR_LEX : Con errores
+SYN_REQ --> SYN_WAIT
+SYN_WAIT --> SEM : Sin errores
+SYN_WAIT --> ERR_SYN : Con errores
+SEM --> OK : Sin errores
+SEM --> ERR_SEM : Con errores
+@enduml

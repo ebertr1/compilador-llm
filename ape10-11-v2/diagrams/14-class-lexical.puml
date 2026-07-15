@@ -1,0 +1,54 @@
+@startuml
+skinparam backgroundColor #FAFBFC
+skinparam classAttributeIconSize 0
+
+class "LexController" as LEXCTRL {
+  + lex(request): LexResponse
+}
+class "LexerService" as LEXSVC {
+  + tokenize(code): LexResponse
+  - handleOperator(...): String
+  - symbolToTokenType(s): String
+}
+class "Token" as TOKEN {
+  type: String
+  value: String
+  line: int
+}
+class "LexRequest" as REQ {
+  code: String
+}
+class "LexResponse" as RES {
+  tokens: List<Token>
+  errors: List<CompilerError>
+}
+class "CompilerError" as ERR {
+  type: String
+  line: int
+  column: int
+  message: String
+}
+enum "TokenType" as TT {
+  ID, NUMBER
+  FLOAT_NUMBER
+  TEXT, ENTERO
+  FLOTANTE, CADENA
+  SI, SINO, MIENTRAS
+  PARA, IMPRIMIR
+  ENETRO
+  PLUS, MINUS
+  TIMES, DIVIDE
+  MOD, ASSIGN
+  SEMICOLON, COMMA
+  DOT, LPAREN
+  RPAREN, LBRACE
+  RBRACE, EQ, NE
+  LT, GT, LE, GE
+}
+
+LEXCTRL --> LEXSVC
+LEXSVC --> REQ
+LEXSVC --> RES
+RES --> TOKEN
+RES --> ERR
+@enduml

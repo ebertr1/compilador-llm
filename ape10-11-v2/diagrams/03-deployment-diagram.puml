@@ -1,0 +1,27 @@
+@startuml
+!define NODE node
+!define ARTIFACT artifact
+skinparam backgroundColor #FAFBFC
+
+NODE "PC Servidor" as Server {
+  NODE "Docker Host" as Docker {
+    ARTIFACT "Frontend Container\nNode 21 :5173" as Frontend
+    ARTIFACT "API Gateway\nJava 21 :8080" as Gateway
+    ARTIFACT "Semantic Service\nJava 21 :8083" as Semantic
+    ARTIFACT "Lexical Service\nJava 21 :8081" as Lexical
+    ARTIFACT "Syntactic Service\nJava 21 :8082" as Syntactic
+  }
+}
+
+NODE "PC Cliente" as Client {
+  ARTIFACT "Navegador Web\n(Chrome/Firefox)" as Browser
+}
+
+Browser --> Frontend : HTTP
+Browser -.-> Gateway : API calls
+Frontend --> Gateway : /api/*
+Frontend --> Semantic : /ws/compile
+Gateway --> Semantic : HTTP :8083
+Semantic --> Lexical : HTTP :8081
+Semantic --> Syntactic : HTTP :8082
+@enduml

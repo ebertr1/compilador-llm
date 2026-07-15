@@ -1,0 +1,9 @@
+com/compiler/syntactic/model/ParseResponse.class
+com/compiler/syntactic/SyntacticApplication.class
+com/compiler/syntactic/model/Token.class
+com/compiler/syntactic/controller/ParseController.class
+com/compiler/syntactic/service/ParserService.class
+com/compiler/syntactic/model/CompilerError.class
+com/compiler/syntactic/grammar/RecursiveDescentParser.class
+com/compiler/syntactic/model/AstNode.class
+com/compiler/syntactic/model/ParseRequest.class
